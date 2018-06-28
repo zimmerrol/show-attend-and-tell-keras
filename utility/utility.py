@@ -1,6 +1,5 @@
 import numpy as np
-import hickle
-import coco
+import utility.coco as coco
 import h5py
 
 def load_validation_data(maximum_caption_length):
