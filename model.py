@@ -1,5 +1,5 @@
 from keras.layers import Input, Dense, LSTM, TimeDistributed, Embedding, Lambda
-from klc.attention import ExternalAttentionRNNWrapper
+from kulc.attention import ExternalAttentionRNNWrapper
 from keras.models import Model
 import keras.backend as K
 
