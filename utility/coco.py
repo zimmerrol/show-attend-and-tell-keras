@@ -37,8 +37,8 @@
 
 import json
 import os
-import download
-from cache import cache
+import utility.download as download
+from utility.cache import cache
 
 ########################################################################
 

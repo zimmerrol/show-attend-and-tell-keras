@@ -1,6 +1,5 @@
 import numpy as np
-import hickle
-import coco
+import utility.coco as coco
 import h5py
 
 def load_validation_data(maximum_caption_length):
@@ -27,17 +26,17 @@ def load_training_data(maximum_caption_length):
     return captions_train_raw, get_data
 
 
-def create_vocabulary(maximum_size, annotations):
+def create_vocabulary(maximum_size, text_sets):
     words = dict()
-    for annotation_lines in annotations:
-        for annotation in annotation_lines:
-            for word in annotation.lower().split():
+    for texts in text_sets:
+        for text in texts:
+            for word in text.lower().split():
                 if word in words:
                     words[word] += 1
                 else:
                     words[word] = 1
     
-    words = [x[0] for x in reversed(sorted(words.items(), key=lambda x: x[1]))]
+    words = [item[0] for item in reversed(sorted(words.items(), key=lambda y: y[1]))]
     words = ["<NULL>", "<START>", "<STOP>"] + words
     words = words[:maximum_size]
 
@@ -49,16 +48,19 @@ def create_vocabulary(maximum_size, annotations):
 
     return word_index_map, index_word_map
 
-def encode_annotations(annotations, word_index_map, maximum_caption_length):
-    encoded_annotations = []
-    for i, annotation_lines in enumerate(annotations):
-        annotations = []
-        for j, caption in enumerate(annotation_lines):
-            encoded_annotation = []
-            for word in caption.split():
+def encode_text_sets(text_sets, word_index_map):
+    encoded_text_sets = []
+    for i, texts in enumerate(text_sets):
+        encoded_texts = []
+        for j, text in enumerate(texts):
+            encoded_text = []
+            for word in text.split():
                 if word.lower() in word_index_map:
-                    encoded_annotation.append(word_index_map[word.lower()])
-            annotations.append(encoded_annotation)
-        encoded_annotations.append(annotations)
+                    encoded_text.append(word_index_map[word.lower()])
+                else:
+                    encoded_text.append(word_index_map["<NULL>"])
 
-    return encoded_annotations
+            encoded_texts.append(encoded_text)
+        encoded_text_sets.append(encoded_texts)
+
+    return encoded_text_sets
