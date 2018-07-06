@@ -56,7 +56,8 @@ def data_generator(filenames, image_directory, batch_size=64):
 @click.option("--encoder", "-e", default="VGG19", required=False, type=click.STRING)
 @click.option("--layer-name", "-l", default="block5_conv4", required=False, type=click.STRING)
 @click.option("--output-folder", "-o", default=".", required=False, type=click.Path(exists=True, file_okay=False, dir_okay=True))
-def cmd(data_path, encoder, layer_name, output_folder):
+@click.option("--batch-size", "-b", default=64, required=False, type=click.INT)
+def cmd(data_path, encoder, layer_name, output_folder, batch_size):
     # create data directory if it does not exist
     os.makedirs(data_path, exist_ok=True)
     
@@ -73,14 +74,14 @@ def cmd(data_path, encoder, layer_name, output_folder):
 
     with h5py.File(os.path.join(output_folder, "image.features.train.{0}.{1}.h5".format(encoder, layer_name)), "w") as h5:
         index = 0
-        for batch in encode_features(model, filenames_train, os.path.join(data_path, "train2017")):
+        for batch in encode_features(model, filenames_train, os.path.join(data_path, "train2017"), batch_size=batch_size):
             for item in batch:
                 h5.create_dataset(str(index), data=item, compression="lzf")
                 index += 1
 
     with h5py.File(os.path.join(output_folder, "image.features.val.{0}.{1}.h5".format(encoder, layer_name)), "w") as h5:
         index = 0
-        for batch in encode_features(model, filenames_val, os.path.join(data_path, "val2017")):
+        for batch in encode_features(model, filenames_val, os.path.join(data_path, "val2017"), batch_size=batch_size):
             for item in batch:
                 h5.create_dataset(str(index), data=item, compression="lzf")
                 index += 1
