@@ -146,6 +146,7 @@ def train(epochs=100):
 
     training_model.save("./models/sat_train_{0}.h5".format(epochs))
     inference_model.save("./models/sat_inf_{0}.h5".format(epochs))
+    initial_state_inference_model.save("./models/sat_inf_init_{0}.h5".format(epochs))
 
     for key in history.history.keys():
         f = plt.figure()
@@ -153,5 +154,7 @@ def train(epochs=100):
         plt.plot(data)
     plt.show()
 
-train()
+epochs = input("Number of epochs: ")
+epochs = int(epochs)
+train(epochs=epochs)
 input("done. <read key>")

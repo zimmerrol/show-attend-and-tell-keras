@@ -51,7 +51,7 @@ def one_hot_encode(data, maximum_caption_length, n_classes):
         for j, word in enumerate(item):
             result[i, j, word] = 1.0
         for k in range(j+1, maximum_caption_length):
-            result[i, k, word_index_map["<NULL>"]] = 1.0
+            result[i, k, le.transform_word("<NULL>")] = 1.0
 
     return result
 
@@ -59,7 +59,7 @@ def inference(image_features, plot_attention):
     image_features = np.array([image_features])
     state_h, state_c = initial_state_inference_model.predict(image_features)
 
-    caption = [word_index_map["<START>"]]
+    caption = [le.transform_word("<START>")]
     attentions = []
 
     current_word = None
@@ -71,9 +71,9 @@ def inference(image_features, plot_attention):
         current_word = np.argmax(output[0, -1])
         caption.append(current_word)
 
-        if current_word == word_index_map["<STOP>"]:
+        if current_word == le.transform_word("<STOP>"):
             break
-    sentence = [index_word_map[i] for i in caption[1:]]
+    sentence = [le._index_word_map[i] for i in caption[1:]]
 
     if plot_attention:
         print(len(attentions))
@@ -98,13 +98,16 @@ le = LanguageEncoder.load("./models/language.pkl")
 captions_val_raw, get_image_features_val = load_validation_data(maximum_caption_length)
 captions_val = le.transform(captions_val_raw)
 
-model_id = 45
+model_id = input("Model ID: ")
+model_id = int(model_id)
 inference_model = load_model(f"./models/sat_inf_{model_id}.h5", custom_objects={"ExternalAttentionRNNWrapper": ExternalAttentionRNNWrapper})
 initial_state_inference_model = load_model(f"./models/sat_inf_init_{model_id}.h5", custom_objects={"ExternalAttentionRNNWrapper": ExternalAttentionRNNWrapper})
 
 while True:
     max_idx = len(captions_val)
-    image_idx = input(f"Enter the image index (0-{max_idx}")
+    image_idx = input(f"Enter the image index (0-{max_idx}): ")
+    image_idx = int(image_idx)
+    
     print("output:")
     print("\t {0}".format(inference(get_image_features_val(str(image_idx)).value.reshape(14*14, 512), plot_attention=False)))
     print("target: ")
